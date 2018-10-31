@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:css="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Liste</title>
+</head>
+<body>
+<style>.highlight {text-decoration-color: #fff168} </style>
+
+<div css:hidden id="login" ></div>
+Login : <input id="Login"type="text">
+Password: <input id="Password" type="text">
+</div>
+
+
+<div id="result">
+</div>
+List to create <input type='texte' name='listName'>
+<button name='addList'>Create a list</button>
+
+
+<script src="./jquery-3.3.1.js" type="text/javascript"></script>
+
+<script>
+    function afficheListes() {
+        $("#result").empty();
+        $.ajax({    url: "http://92.222.69.104:80/todo/listes",
+                    headers: {"login" : "MICHAUD","password": "Eric"}
+                    }).done(function(data) {
+                        $("div#result").append("<ul class='result'></ul>");
+                        data.todoListes.forEach(
+                            function (list) {
+                                console.log(list);
+                                if (list.name !== null){
+                                    $("ul.result:last-child").append("<li class='liste'>" + list.name + "</li>");
+                                    var listName = list.name.replace(/ /g, "")
+
+                                    /* add a liste of item in any case even if empty */
+                                    $("li.liste:last-child").append("<ul class='" + listName + "'></ul>");
+
+                                    if (list.elements.length != 0) {
+                                        list.elements.forEach(
+                                            function (item) {
+                                                console.log(item);
+                                                $("ul." + listName + ":last-child").append("<li class='item'>" + item + "</li>");
+                                            });
+                                        /* add a button to add item*/
+                                        }
+                                    $("ul." + listName ).append("<button class='button'> addto" +listName+ "</button>");
+                                    }
+                                });
+                            });
+
+        /* Create a  action on createliste button */
+        $("button[name=addList]").on("click",function(){
+            var listName=$("input[name=listName]").val();
+            console.log(listName);
+            createNewListes(listName);
+            });
+
+        }
+
+/*    JSON.stringify([{"nom" :"TOTO1","prenom":"TATA"},
+        {"nom" : "TOTO2", "prenom":"TATA"}]),*/
+
+    function createNewListes(nom) {
+        if (nom!==null) {
+            $.ajax({
+                url: "http://92.222.69.104:80/todo/listes",
+                headers: {"login": "MICHAUD", "password": "Eric"}
+            }).done(
+                function (data) {
+                    console.log(data);
+                    newlist = {name: nom, elements: []};
+                    data.todoListes.push(newlist);
+                    console.log(data);
+
+                    $.ajax({
+                        type: 'post',
+                        url: "http://92.222.69.104:80/todo/listes",
+                        data: JSON.stringify(data),
+                        contentType: "application/json; charset=utf-8"
+                    }).done(function (data) {
+                        console.log(data)
+                    });
+                });
+            afficheListes();
+            }
+        };
+
+    function createnewItem(nomliste,nomitem) {
+        $.ajax({
+            url: "http://92.222.69.104:80/todo/listes",
+            headers: {"login": "MICHAUD", "password": "Eric"}
+            }).done(
+                function (data) {
+                console.log(data);
+                data.todoListes.forEach( function(liste) {
+                    if (liste.name == nomliste) {
+                        liste.elements.push(nomitem);
+                        }
+                    });
+                console.log(data);
+
+                $.ajax({
+                    type: 'post',
+                    url: "http://92.222.69.104:80/todo/listes",
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8"
+                    }).done(function (data) {
+                        console.log(data)
+                        });
+                });
+        };
+
+    function displayListe(name,password) {
+        $.ajax({
+            url: "http://92.222.69.104:80/todo/listes",
+            headers: {"login": "MICHAUD", "password": "Eric"}
+        }).done(
+            function (data) {
+                console.log(data);
+                data.todoListes.forEach( function(liste) {
+                    if (liste.name == nomliste) {
+                        liste.elements.push(nomitem);
+                    }
+                });
+                console.log(data);
+
+                $.ajax({
+                    type: 'post',
+                    url: "http://92.222.69.104:80/todo/listes",
+                    data: JSON.stringify(data),
+                    contentType: "application/json; charset=utf-8"
+                }).done(function (data) {
+                    console.log(data)
+                });
+            });
+    };
+    $(document).ready(function() {
+        /*alert("Le document est chargé");*/
+        afficheListes("MICHAUD","Eric");
+    });
+
+
+
+
+</script>
+
+</body>
+</html>
