@@ -34,6 +34,7 @@ List to create <input type='texte' name='listName'>
 
             /* add a first empty list */
             $("div#result").append("<ul class='result'></ul>");
+
             /* add en list for each element of data */
             data.todoListes.forEach(
                 function (list) {
@@ -55,24 +56,38 @@ List to create <input type='texte' name='listName'>
                                 });
                             /* add a button to add item*/
                         }
-
-                        $("ul." + listName).append("<button class='button'> addto" + listName + "</button>");
+                        /* add a text input to create item */
+                        $("ul." + listName).append("<input type='texte' name='"+listName+"'>");
+                        $("ul." + listName).append("<button class='buttonAddItem' listname="+listName+"> add </button>");
                     }
                 });
+
+            /* Create an action on create liste button */
+            $("button[name=addList]").on("click",function(){
+                var listName=$("input[name=listName]").val();
+                console.log(listName);
+                createNewList(listName);
+            });
 
             /* Create an action on each delete List button */
             $("button.buttonDelList").on("click", function () {
                 console.log("ok for delete :" + $(this).attr('listname'));
+                deleteList($(this).attr('listname'));
+                console.log("Delete Done");
             });
 
+            /* Create an action on each add item  button */
+            $("button.buttonAddItem").on("click", function () {
+                var listName=$(this).attr('listname');
+                var item = $("input[name='"+listName+"']").val();
+                console.log("ok to add "+ item +" to:" + listName);
+                createnewItem(listName,item);
+                console.log("Add Done");
+            });
+
+
         });
 
-        /* Create an  action on createliste button */
-        $("button[name=addList]").on("click",function(){
-            var listName=$("input[name=listName]").val();
-            console.log(listName);
-            createNewList(listName);
-        });
 
     }
 
