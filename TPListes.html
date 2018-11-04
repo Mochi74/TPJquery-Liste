@@ -7,7 +7,7 @@
 <body>
 <style>.highlight {text-decoration-color: #fff168} </style>
 
-<div css:hidden id="login" ></div>
+<div id="login" >
 Login : <input id="Login"type="text">
 Password: <input id="Password" type="text">
 </div>
@@ -15,9 +15,11 @@ Password: <input id="Password" type="text">
 
 <div id="result">
 </div>
-List to create <input type='texte' name='listName'>
-<button name='addList'>Create a list</button>
 
+<div id="createlist">
+List to create<input type='texte' name='listName'>
+<button name='addList'>Add a list</button>
+</div>
 
 <script src="./jquery-3.3.1.js" type="text/javascript"></script>
 
@@ -34,31 +36,43 @@ List to create <input type='texte' name='listName'>
 
             /* add a first empty list */
             $("div#result").append("<ul class='result'></ul>");
+            console.log(data);
 
             /* add en list for each element of data */
+            var indexList=0;
             data.todoListes.forEach(
                 function (list) {
-                /* console.log(list);*/
                     if (list.name !== null) {
                         var listName = list.name.replace(/ /g, "");
+
                         $("ul.result:last-child").append(
                             "<li class='list'>" + list.name +
-                            "<button class='buttonDelList' listname='" + list.name + "'> delete List </button>" +
+                                "<button class='buttonDelList' index='" + indexList + "'>" +
+                                    "<img src='cancelcross.png' alt='cancel cross'>" +
+                                "</button>" +
                             "</li>");
 
+
                         /* add a list of items in any case even if empty */
-                        $("li.list:last-child").append("<ul class='" + listName + "'></ul>");
+                        $("li.list:last-child").append("<ul class='items list_" + indexList + "'></ul>");
                         if (list.elements.length != 0) {
+                            var indexItem=0;
                             list.elements.forEach(
                                 function (item) {
-                                    console.log(item);
-                                    $("ul." + listName + ":last-child").append("<li class='item'>" + item + "</li>");
+                                    $("ul.list_" + indexList + ":last-child").append(
+                                        "<li class='item'>" + item +
+                                            "<button class='buttonDelItem' listname='list_" + indexList + "' index='"+indexItem+"'>"+
+                                                "<img src='cancelcross.png' alt='cancel cross'>" +
+                                            "</button>"+
+                                        "</li>");
+                                    indexItem+=1;
                                 });
-                            /* add a button to add item*/
-                        }
+
+                            }
                         /* add a text input to create item */
-                        $("ul." + listName).append("<input type='texte' name='"+listName+"'>");
-                        $("ul." + listName).append("<button class='buttonAddItem' listname="+listName+"> add </button>");
+                        $("ul.list_" + indexList+ ":last-child").append(   "<input type='texte' name='list_"+indexList+"'>" +
+                                                            "<button class='buttonAddItem' name='list_"+indexList+"'> add </button>");
+                        indexList+=1;
                     }
                 });
 
@@ -71,18 +85,24 @@ List to create <input type='texte' name='listName'>
 
             /* Create an action on each delete List button */
             $("button.buttonDelList").on("click", function () {
-                console.log("ok for delete :" + $(this).attr('listname'));
-                deleteList($(this).attr('listname'));
-                console.log("Delete Done");
-            });
+                /* console.log("ok for delete :" + $(this).attr('index'));*/
+                deleteList($(this).attr('index'));
+             });
 
             /* Create an action on each add item  button */
             $("button.buttonAddItem").on("click", function () {
-                var listName=$(this).attr('listname');
-                var item = $("input[name='"+listName+"']").val();
-                console.log("ok to add "+ item +" to:" + listName);
-                createnewItem(listName,item);
-                console.log("Add Done");
+                var listIndex=Number($(this).attr('name').replace(/list_/gi,""));
+                var item = $("input[name='list_"+listIndex+"']").val();
+                console.log("ok to add "+ item +" to: list_" + listIndex);
+                createnewItem(listIndex,item);
+            });
+
+            /* Create an action on each delete item  button */
+            $("button.buttonDelItem").on("click", function () {
+                var listIndex = Number($(this).attr('listname').replace(/list_/gi,""));
+                var itemIndex = $(this).attr('index');
+                console.log("ok to delete item:"+ itemIndex +" of:list_" + listIndex);
+                deleteItem(listIndex, itemIndex);
             });
 
 
@@ -120,54 +140,38 @@ List to create <input type='texte' name='listName'>
         };
 
 
-    function deleteList(listName) {
-        if (listName!==null) {
+    function deleteList(listIndex) {
+        if (listIndex!==null) {
             /*Call service 1 to get object list */
             $.ajax({
                 url: "http://92.222.69.104:80/todo/listes",
                 headers: {"login": "MICHAUD", "password": "Eric"}
-            }).done(
-                function (data) {
-                    var index=0;
-                    /* find the name in the list */
-                    data.todoListes.forEach( function (list) {
-                        console.log(list);
-                        if (list.name === listName) {
-                            console.log("liste " + listName + " trouvée: index= "+index);
-                            data.todoListes.splice(index,1);
-                            }
-                        index+=1;
-                        });
-
-                    console.log(data);
+            }).done( function (data) {
+                    data.todoListes.splice(listIndex,1);
 
                     $.ajax({
                         type: 'post',
                         url: "http://92.222.69.104:80/todo/listes",
                         data: JSON.stringify(data),
                         contentType: "application/json; charset=utf-8"
-                    }).done(function (data) {
-                        console.log(data)
+                        }).done(function (data) {
+                            /* console.log(data)*/
+                        });
                     });
-                });
-        }
-    };
+            }
+        };
 
 
 
-    function createnewItem(nomliste,nomitem) {
+    function createnewItem(listIndex,item) {
         $.ajax({
             url: "http://92.222.69.104:80/todo/listes",
             headers: {"login": "MICHAUD", "password": "Eric"}
             }).done(
                 function (data) {
-                console.log(data);
-                data.todoListes.forEach( function(liste) {
-                    if (liste.name === nomliste) {
-                        liste.elements.push(nomitem);
-                        }
-                    });
-                console.log(data);
+                    console.log(data);
+                    data.todoListes[listIndex].elements.push(item);
+                    console.log(data);
 
                 $.ajax({
                     type: 'post',
@@ -180,32 +184,32 @@ List to create <input type='texte' name='listName'>
                 });
         };
 
-    /*
-    function displayListe(name,password) {
-        $.ajax({
-            url: "http://92.222.69.104:80/todo/listes",
-            headers: {"login": "MICHAUD", "password": "Eric"}
-        }).done(
-            function (data) {
-                console.log(data);
-                data.todoListes.forEach( function(liste) {
-                    if (liste.name == nomliste) {
-                        liste.elements.push(nomitem);
-                    }
-                });
-                console.log(data);
 
-                $.ajax({
-                    type: 'post',
-                    url: "http://92.222.69.104:80/todo/listes",
-                    data: JSON.stringify(data),
-                    contentType: "application/json; charset=utf-8"
-                }).done(function (data) {
-                    console.log(data)
-                });
-            });
-    };
-    */
+    function deleteItem(listIndex,itemIndex) {
+        if (listIndex!==null && itemIndex!==null) {
+            /*Call service 1 to get object list */
+            $.ajax({
+                url: "http://92.222.69.104:80/todo/listes",
+                headers: {"login": "MICHAUD", "password": "Eric"}
+                }).done( function (data) {
+                        console.log(data);
+                        data.todoListes[listIndex].elements.splice(itemIndex,1);
+                        console.log(data);
+
+
+                    $.ajax({
+                            type: 'post',
+                            url: "http://92.222.69.104:80/todo/listes",
+                            data: JSON.stringify(data),
+                            contentType: "application/json; charset=utf-8"
+                            }).done(function (data) {
+                                console.log(data)
+                                });
+                    });
+            }
+        };
+
+
 
 
 
