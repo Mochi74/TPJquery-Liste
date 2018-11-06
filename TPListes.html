@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:css="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:css="http://www.w3.org/1999/xhtml" xmlns:style="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Test Liste</title>
+    <link rel="stylesheet" type="text/css" href="TPliste.css">
 </head>
+
 <body>
 <style>.highlight {text-decoration-color: #fff168} </style>
 
-<div id="login" >
+<div class="login" >
 Login : <input id="Login"type="text">
 Password: <input id="Password" type="text">
 </div>
@@ -16,9 +18,11 @@ Password: <input id="Password" type="text">
 <div id="result">
 </div>
 
-<div id="createlist">
-List to create<input type='texte' name='listName'>
-<button name='addList'>Add a list</button>
+<div class="divlist">
+    <div class="listtitle">List to create
+        <input type='texte' name='listName'>
+    </div>
+    <button name='addList'>Add a list</button>
 </div>
 
 <script src="./jquery-3.3.1.js" type="text/javascript"></script>
@@ -43,18 +47,20 @@ List to create<input type='texte' name='listName'>
             data.todoListes.forEach(
                 function (list) {
                     if (list.name !== null) {
-                        var listName = list.name.replace(/ /g, "");
-
                         $("ul.result:last-child").append(
-                            "<li class='list'>" + list.name +
-                                "<button class='buttonDelList' index='" + indexList + "'>" +
-                                    "<img src='cancelcross.png' alt='cancel cross'>" +
-                                "</button>" +
-                            "</li>");
+                            "<div class='divlist'>" +
+                                "<li id='list_"+indexList+"'>" +
+                                    "<div class='listtitle'>"+list.name +
+                                        "<button class='buttonDelList' index='" + indexList + "'>" +
+                                            "<img src='cancelcross.png' alt='cancel cross'>" +
+                                        "</button>" +
+                                    "</div>"+
+                                "</li>" +
+                            "</div>");
 
 
                         /* add a list of items in any case even if empty */
-                        $("li.list:last-child").append("<ul class='items list_" + indexList + "'></ul>");
+                        $("li#list_"+indexList+":last-child").append("<ul class='items list_" + indexList + "'></ul>");
                         if (list.elements.length != 0) {
                             var indexItem=0;
                             list.elements.forEach(
@@ -72,6 +78,7 @@ List to create<input type='texte' name='listName'>
                         /* add a text input to create item */
                         $("ul.list_" + indexList+ ":last-child").append(   "<input type='texte' name='list_"+indexList+"'>" +
                                                             "<button class='buttonAddItem' name='list_"+indexList+"'> add </button>");
+
                         indexList+=1;
                     }
                 });
