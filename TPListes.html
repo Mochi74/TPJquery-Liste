@@ -49,7 +49,7 @@
                 $("div.loginfail").html("login ok");
                 listdata=data;
                 login=true;
-                $("div.login").css({visibility:'hidden'});
+                $("div.login").hide();
                 displayLists(head);
             })
             .fail(function(xhr, msg, errortype) {
@@ -95,9 +95,7 @@
                             function (item) {
                                 $("ul.list_" + indexList + ":last-child").append(
                                     "<li class='item'>" + item +
-                                        "<button class='buttonDelItem' listname='list_" + indexList + "' index='"+indexItem+"'>"+
-                                            "<img src='cancelcross.png' alt='cancel cross'>" +
-                                        "</button>"+
+                                        "<img src='cancelcross.png' class='buttonDelItem' listname='list_" + indexList + "' index='"+indexItem+"' alt='cancel cross'>" +
                                     "</li>");
                                 indexItem+=1;
                             });
@@ -119,7 +117,7 @@
                                     "<button name='addList' style:{align-text:center}>Add a list</button>"+
                                 "</div>");
 
-        $("div.result").css({visibility:'visible'});
+        $("div.result").show();
 
         /* Create an action on create liste button */
         $("button[name=addList]").on("click",function(){
@@ -143,7 +141,7 @@
         });
 
         /* Create an action on each delete item  button */
-        $("button.buttonDelItem").on("click", function () {
+        $("img.buttonDelItem").on("click", function () {
             var listIndex = Number($(this).attr('listname').replace(/list_/gi,""));
             var itemIndex = $(this).attr('index');
             console.log("ok to delete item:"+ itemIndex +" of:list_" + listIndex);
