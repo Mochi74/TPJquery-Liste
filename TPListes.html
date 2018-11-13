@@ -67,202 +67,181 @@
         /* clean the place */
         $("div.result").empty();
 
-        /* get the todo lists in data from ajax server call */
-        $.ajax( {
-            url: "http://92.222.69.104:80/todo/listes",
-            headers: head
-            }).done(function (data) {
+        /* add a first empty list */
+        $("div.result").append("<ul class='result'></ul>");
+        console.log(listdata);
 
-            /* add a first empty list */
-            $("div.result").append("<ul class='result'></ul>");
-            console.log(data);
+        /* add en list for each element of data */
+        var indexList=0;
+        listdata.todoListes.forEach(
+            function (list) {
+                if (list.name !== null) {
+                    $("ul.result:last-child").append(
+                        "<div class='divlist'>" +
+                            "<li id='list_"+indexList+"'>" +
+                                "<div class='listtitle'>" +
+                                        list.name +
+                                        "<img class='buttonDelList' index='" + indexList + "' src='cancelcross.png' alt='cancel cross'>" +
+                                "</div>"+
+                            "</li>" +
+                        "</div>");
 
-            /* add en list for each element of data */
-            var indexList=0;
-            data.todoListes.forEach(
-                function (list) {
-                    if (list.name !== null) {
-                        $("ul.result:last-child").append(
-                            "<div class='divlist'>" +
-                                "<li id='list_"+indexList+"'>" +
-                                    "<div class='listtitle'>" +
-                                            list.name +
-                                            "<img class='buttonDelList' index='" + indexList + "' src='cancelcross.png' alt='cancel cross'>" +
+
+                    /* add a list of items in any case even if empty */
+                    $("li#list_"+indexList+":last-child").append("<ul class='items list_" + indexList + "'></ul>");
+                    if (list.elements.length != 0) {
+                        var indexItem=0;
+                        list.elements.forEach(
+                            function (item) {
+                                $("ul.list_" + indexList + ":last-child").append(
+                                    "<li class='item'>" + item +
+                                        "<button class='buttonDelItem' listname='list_" + indexList + "' index='"+indexItem+"'>"+
+                                            "<img src='cancelcross.png' alt='cancel cross'>" +
+                                        "</button>"+
+                                    "</li>");
+                                indexItem+=1;
+                            });
+
+                        }
+                    /* add a text input to create item */
+                    $("ul.list_" + indexList+ ":last-child").append(   "<input type='texte' name='list_"+indexList+"'>" +
+                                                        "<button class='buttonAddItem' name='list_"+indexList+"'> add </button>");
+
+                    indexList+=1;
+                }
+            });
+
+        /* add a button to create new list */
+        $("ul.result:last-child").append("<div class='divlist'>"+
+                                    "<div class='listtitle'>List to create " +
+                                        "<input type='texte' name='listName'>"+
                                     "</div>"+
-                                "</li>" +
-                            "</div>");
+                                    "<button name='addList' style:{align-text:center}>Add a list</button>"+
+                                "</div>");
 
+        $("div.result").css({visibility:'visible'});
 
-                        /* add a list of items in any case even if empty */
-                        $("li#list_"+indexList+":last-child").append("<ul class='items list_" + indexList + "'></ul>");
-                        if (list.elements.length != 0) {
-                            var indexItem=0;
-                            list.elements.forEach(
-                                function (item) {
-                                    $("ul.list_" + indexList + ":last-child").append(
-                                        "<li class='item'>" + item +
-                                            "<button class='buttonDelItem' listname='list_" + indexList + "' index='"+indexItem+"'>"+
-                                                "<img src='cancelcross.png' alt='cancel cross'>" +
-                                            "</button>"+
-                                        "</li>");
-                                    indexItem+=1;
-                                });
-
-                            }
-                        /* add a text input to create item */
-                        $("ul.list_" + indexList+ ":last-child").append(   "<input type='texte' name='list_"+indexList+"'>" +
-                                                            "<button class='buttonAddItem' name='list_"+indexList+"'> add </button>");
-
-                        indexList+=1;
-                    }
-                });
-
-            /* add a button to create new list */
-            $("ul.result:last-child").append("<div class='divlist'>"+
-                                        "<div class='listtitle'>List to create " +
-                                            "<input type='texte' name='listName'>"+
-                                        "</div>"+
-                                        "<button name='addList' style:{align-text:center}>Add a list</button>"+
-                                    "</div>");
-
-            $("div.result").css({visibility:'visible'});
-
-            /* Create an action on create liste button */
-            $("button[name=addList]").on("click",function(){
-                var listName=$("input[name=listName]").val();
-                console.log(listName);
-                createNewList(listName);
-            });
-
-            /* Create an action on each delete List button */
-            $("img.buttonDelList").on("click", function () {
-                console.log("ok for delete :" + $(this).attr('index'));
-                deleteList($(this).attr('index'));
-             });
-
-            /* Create an action on each add item  button */
-            $("button.buttonAddItem").on("click", function () {
-                var listIndex=Number($(this).attr('name').replace(/list_/gi,""));
-                var item = $("input[name='list_"+listIndex+"']").val();
-                console.log("ok to add "+ item +" to: list_" + listIndex);
-                createnewItem(listIndex,item);
-            });
-
-            /* Create an action on each delete item  button */
-            $("button.buttonDelItem").on("click", function () {
-                var listIndex = Number($(this).attr('listname').replace(/list_/gi,""));
-                var itemIndex = $(this).attr('index');
-                console.log("ok to delete item:"+ itemIndex +" of:list_" + listIndex);
-                deleteItem(listIndex, itemIndex);
-            });
-
-
+        /* Create an action on create liste button */
+        $("button[name=addList]").on("click",function(){
+            var listName=$("input[name=listName]").val();
+            console.log(listName);
+            createNewList(listName);
         });
 
+        /* Create an action on each delete List button */
+        $("img.buttonDelList").on("click", function () {
+            console.log("ok for delete :" + $(this).attr('index'));
+            deleteList($(this).attr('index'));
+         });
+
+        /* Create an action on each add item  button */
+        $("button.buttonAddItem").on("click", function () {
+            var listIndex=Number($(this).attr('name').replace(/list_/gi,""));
+            var item = $("input[name='list_"+listIndex+"']").val();
+            console.log("ok to add "+ item +" to: list_" + listIndex);
+            createnewItem(listIndex,item);
+        });
+
+        /* Create an action on each delete item  button */
+        $("button.buttonDelItem").on("click", function () {
+            var listIndex = Number($(this).attr('listname').replace(/list_/gi,""));
+            var itemIndex = $(this).attr('index');
+            console.log("ok to delete item:"+ itemIndex +" of:list_" + listIndex);
+            deleteItem(listIndex, itemIndex);
+        });
 
     }
 
-/*    JSON.stringify([{"nom" :"TOTO1","prenom":"TATA"},
-        {"nom" : "TOTO2", "prenom":"TATA"}]),*/
-
     function createNewList(nom) {
         if (nom!==null) {
+            console.log(listdata);
+            newlist = {name: nom, elements: []};
+            listdata.todoListes.push(newlist);
+            console.log(listdata);
+
             $.ajax({
+                type: 'post',
                 url: "http://92.222.69.104:80/todo/listes",
-                headers: head
-            }).done(
-                function (data) {
-                    console.log(data);
-                    newlist = {name: nom, elements: []};
-                    data.todoListes.push(newlist);
-                    console.log(data);
-
-                    $.ajax({
-                        type: 'post',
-                        url: "http://92.222.69.104:80/todo/listes",
-                        data: JSON.stringify(data),
-                        contentType: "application/json; charset=utf-8"
-                    }).done(function (data) {
-                        console.log(data)
-                    });
-                    displayLists(head);
+                data: JSON.stringify(listdata),
+                contentType: "application/json; charset=utf-8"
+            }).done(function (listdata) {
+                console.log(listdata)
                 });
-
-            }
-        };
+            displayLists(head);
+            };
+        }
 
 
     function deleteList(listIndex) {
         if (listIndex!==null) {
             /*Call service 1 to get object list */
-            $.ajax({
+            /* $.ajax({
                 url: "http://92.222.69.104:80/todo/listes",
                 headers: head
-            }).done( function (data) {
-                    data.todoListes.splice(listIndex,1);
-
-                    $.ajax({
-                        type: 'post',
-                        url: "http://92.222.69.104:80/todo/listes",
-                        data: JSON.stringify(data),
-                        contentType: "application/json; charset=utf-8"
-                        }).done(function (data) {
-                            /* console.log(data)*/
-                            displayLists(head);
-                        });
+            }).done( function (data) {*/
+            listdata.todoListes.splice(listIndex,1);
+            $.ajax({
+                type: 'post',
+                url: "http://92.222.69.104:80/todo/listes",
+                data: JSON.stringify(listdata),
+                contentType: "application/json; charset=utf-8"
+                }).done(function (listdata) {
+                    /* console.log(listdata)*/
+                    displayLists(head);
                     });
-            }
-        };
+            };
+        }
+
 
 
 
     function createnewItem(listIndex,item) {
-        $.ajax({
+        if (listIndex!==null && item!==null) {
+            /*$.ajax({
             url: "http://92.222.69.104:80/todo/listes",
             headers: {"login": "MICHAUD", "password": "Eric"}
             }).done(
-                function (data) {
-                    console.log(data);
-                    data.todoListes[listIndex].elements.push(item);
-                    console.log(data);
+                function (data) {*/
+            console.log(listdata);
+            listdata.todoListes[listIndex].elements.push(item);
+            console.log(listdata);
 
-                $.ajax({
-                    type: 'post',
-                    url: "http://92.222.69.104:80/todo/listes",
-                    data: JSON.stringify(data),
-                    contentType: "application/json; charset=utf-8"
-                    }).done(function (data) {
-                        console.log(data);
-                        displayLists(head);
-                        });
-                });
-        };
+            $.ajax({
+                type: 'post',
+                url: "http://92.222.69.104:80/todo/listes",
+                data: JSON.stringify(listdata),
+                contentType: "application/json; charset=utf-8"
+                }).done(function (listdata) {
+                    console.log(listdata);
+                    displayLists(head);
+                    });
+            };
+        }
 
 
     function deleteItem(listIndex,itemIndex) {
         if (listIndex!==null && itemIndex!==null) {
             /*Call service 1 to get object list */
-            $.ajax({
+            /*$.ajax({
                 url: "http://92.222.69.104:80/todo/listes",
                 headers: {"login": "MICHAUD", "password": "Eric"}
-                }).done( function (data) {
-                        console.log(data);
-                        data.todoListes[listIndex].elements.splice(itemIndex,1);
-                        console.log(data);
+                }).done( function (data) {*/
+            console.log(listdata);
+            listdata.todoListes[listIndex].elements.splice(itemIndex,1);
+            console.log(listdata);
 
 
-                    $.ajax({
-                            type: 'post',
-                            url: "http://92.222.69.104:80/todo/listes",
-                            data: JSON.stringify(data),
-                            contentType: "application/json; charset=utf-8"
-                            }).done(function (data) {
-                                console.log(data);
-                                displayLists(head);
-                                });
+            $.ajax({
+                type: 'post',
+                url: "http://92.222.69.104:80/todo/listes",
+                data: JSON.stringify(listdata),
+                contentType: "application/json; charset=utf-8"
+                }).done(function (listdata) {
+                    console.log(listdata);
+                    displayLists(head);
                     });
-            }
-        };
+            };
+        }
 
 
 
