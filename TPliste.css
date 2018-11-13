@@ -2,28 +2,45 @@ body {
     background-color: lightblue;
 }
 
-#login {
-    position: absolute;
-    width:100%;
-    color: navy;
+.login {
+    position: relative;
+    padding-top: 100px;
+    width:30%;
+    height:200px;
+    color: #000000;
+    background-color: #debcff;
+    text-align: center;
     margin: auto;
+}
+
+div.result {
+    visibility: hidden;
 }
 .listtitle{
     width: 100%;
     text-align: center;
     background-color: #5e68ff;
+    padding: 5px;
 }
+
+img.buttonDelList{
+    float: right;
+}
+
 
 .divlist {
     position: relative;
     float: left;
     width: 300px;
     height: 200px;
-    overflow: scroll;
     border: 3px solid #5c93ad;
     padding: 5px 5px 5px 5px;
     background-color: #a7b9ff;
     margin: 5px;
+}
+
+ul.result {
+    list-style-type: none ;
 }
 
 

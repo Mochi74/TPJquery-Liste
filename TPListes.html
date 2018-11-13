@@ -10,36 +10,71 @@
 <style>.highlight {text-decoration-color: #fff168} </style>
 
 <div class="login" >
-Login : <input id="Login"type="text">
-Password: <input id="Password" type="text">
+    Identifiant<br>
+    <input id="Login"type="text"><br>
+    <input id="Password" type="text"><br>
+    <button id="login">validé</button>
+    <div class="loginfail"></div>
 </div>
 
 
-<div id="result">
+<div class="result">
 </div>
 
-<div class="divlist">
-    <div class="listtitle">List to create
-        <input type='texte' name='listName'>
-    </div>
-    <button name='addList'>Add a list</button>
-</div>
+
 
 <script src="./jquery-3.3.1.js" type="text/javascript"></script>
 
 <script>
-    function displayLists() {
+    /* global variable to store list data */
+    var login =false;
+    var head = {"usr":"","password":""};
+    var listdata;
+
+
+    function getlogin() {
+        usr = $("input#Login").val();
+        pass = $("input#Password").val();
+        head = {"login": usr , "password": pass}
+        console.log(head);
+        login=false;
+
+        /* get the lists*/
+        $.ajax( {
+            url: "http://92.222.69.104:80/todo/listes",
+            headers: head
+            })
+            .done(function (data) {
+                /* console.log("login ok"+ listdata);*/
+                $("div.loginfail").html("login ok");
+                listdata=data;
+                login=true;
+                $("div.login").css({visibility:'hidden'});
+                displayLists(head);
+            })
+            .fail(function(xhr, msg, errortype) {
+                $("div.loginfail").html("Login fail");
+            });
+
+    }
+
+
+
+
+
+
+    function displayLists(head) {
         /* clean the place */
-        $("#result").empty();
+        $("div.result").empty();
 
         /* get the todo lists in data from ajax server call */
         $.ajax( {
             url: "http://92.222.69.104:80/todo/listes",
-            headers: {"login": "MICHAUD", "password": "Eric"}
+            headers: head
             }).done(function (data) {
 
             /* add a first empty list */
-            $("div#result").append("<ul class='result'></ul>");
+            $("div.result").append("<ul class='result'></ul>");
             console.log(data);
 
             /* add en list for each element of data */
@@ -50,10 +85,9 @@ Password: <input id="Password" type="text">
                         $("ul.result:last-child").append(
                             "<div class='divlist'>" +
                                 "<li id='list_"+indexList+"'>" +
-                                    "<div class='listtitle'>"+list.name +
-                                        "<button class='buttonDelList' index='" + indexList + "'>" +
-                                            "<img src='cancelcross.png' alt='cancel cross'>" +
-                                        "</button>" +
+                                    "<div class='listtitle'>" +
+                                            list.name +
+                                            "<img class='buttonDelList' index='" + indexList + "' src='cancelcross.png' alt='cancel cross'>" +
                                     "</div>"+
                                 "</li>" +
                             "</div>");
@@ -83,6 +117,16 @@ Password: <input id="Password" type="text">
                     }
                 });
 
+            /* add a button to create new list */
+            $("ul.result:last-child").append("<div class='divlist'>"+
+                                        "<div class='listtitle'>List to create " +
+                                            "<input type='texte' name='listName'>"+
+                                        "</div>"+
+                                        "<button name='addList' style:{align-text:center}>Add a list</button>"+
+                                    "</div>");
+
+            $("div.result").css({visibility:'visible'});
+
             /* Create an action on create liste button */
             $("button[name=addList]").on("click",function(){
                 var listName=$("input[name=listName]").val();
@@ -91,8 +135,8 @@ Password: <input id="Password" type="text">
             });
 
             /* Create an action on each delete List button */
-            $("button.buttonDelList").on("click", function () {
-                /* console.log("ok for delete :" + $(this).attr('index'));*/
+            $("img.buttonDelList").on("click", function () {
+                console.log("ok for delete :" + $(this).attr('index'));
                 deleteList($(this).attr('index'));
              });
 
@@ -125,7 +169,7 @@ Password: <input id="Password" type="text">
         if (nom!==null) {
             $.ajax({
                 url: "http://92.222.69.104:80/todo/listes",
-                headers: {"login": "MICHAUD", "password": "Eric"}
+                headers: head
             }).done(
                 function (data) {
                     console.log(data);
@@ -141,8 +185,9 @@ Password: <input id="Password" type="text">
                     }).done(function (data) {
                         console.log(data)
                     });
+                    displayLists(head);
                 });
-            displayLists();
+
             }
         };
 
@@ -152,7 +197,7 @@ Password: <input id="Password" type="text">
             /*Call service 1 to get object list */
             $.ajax({
                 url: "http://92.222.69.104:80/todo/listes",
-                headers: {"login": "MICHAUD", "password": "Eric"}
+                headers: head
             }).done( function (data) {
                     data.todoListes.splice(listIndex,1);
 
@@ -163,6 +208,7 @@ Password: <input id="Password" type="text">
                         contentType: "application/json; charset=utf-8"
                         }).done(function (data) {
                             /* console.log(data)*/
+                            displayLists(head);
                         });
                     });
             }
@@ -186,7 +232,8 @@ Password: <input id="Password" type="text">
                     data: JSON.stringify(data),
                     contentType: "application/json; charset=utf-8"
                     }).done(function (data) {
-                        console.log(data)
+                        console.log(data);
+                        displayLists(head);
                         });
                 });
         };
@@ -210,7 +257,8 @@ Password: <input id="Password" type="text">
                             data: JSON.stringify(data),
                             contentType: "application/json; charset=utf-8"
                             }).done(function (data) {
-                                console.log(data)
+                                console.log(data);
+                                displayLists(head);
                                 });
                     });
             }
@@ -222,7 +270,11 @@ Password: <input id="Password" type="text">
 
     $(document).ready(function() {
         /*alert("Le document est chargé");*/
-        displayLists("MICHAUD","Eric");
+        /* ajoute l'action de login */
+        $("button#login").on("click",function(){
+            getlogin();
+        });
+
     });
 
 
