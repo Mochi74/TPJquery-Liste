@@ -13,7 +13,7 @@
     Identifiant<br>
     <input id="Login"type="text"><br>
     <input id="Password" type="text"><br>
-    <button id="login">validé</button>
+    <button id="login">valider</button>
     <div class="loginfail"></div>
 </div>
 
@@ -71,7 +71,7 @@
         $("div.result").append("<ul class='result'></ul>");
         console.log(listdata);
 
-        /* add en list for each element of data */
+        /* add a list for each element of data */
         var indexList = 0;
         listdata.todoListes.forEach(
             function (list) {
@@ -126,7 +126,7 @@
 
         $("div.result").show();
 
-        /* Create an action on create liste button */
+        /* Create an action on create list button */
         $("button[name=addList]").on("click", function () {
             var listName = $("input[name=listName]").val();
             console.log(listName);
@@ -157,16 +157,34 @@
 
         /* Create an action on each listtitle */
         $("div.listtitle").on("click", function () {
-            var listIndex = $(this).closest("li").attr("id");
+            var indexList = $(this).closest("li").attr("id");
             var listname = $(this).text();
             console.log("ok to edit :" + $(this).text());
             $(this).replaceWith(
+                "<div class='listtitle'>" +
                 "<input type='texte' name='listName' placeholder='" + listname + "'>" +
-                "<button id='rename'> rename</button>"+
-                "<button id='cancel'> cancel</button>");
+                "<button id='rename'> rename</button>" +
+                "<button id='cancel'> cancel</button> " +
+                "</div>");
+
+                $("div.listtitle button#cancel").on("click", function () {
+                console.log("ok to cancel :" + listname);
+                $(this).parent().replaceWith(
+                    "<div class='listtitle'>" +
+                    listname +
+                    "<img class='buttonDelList' index='" + indexList + "' src='cancelcross.png' alt='cancel cross'>" +
+                    "</div>");
+            });
+
+
 
         });
+
+
+        /* on cancel change button */
+
     }
+
 
     function createNewList(nom) {
         if (nom!==null) {
