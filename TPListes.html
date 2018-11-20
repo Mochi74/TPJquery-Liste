@@ -7,7 +7,6 @@
 </head>
 
 <body>
-<style>.highlight {text-decoration-color: #fff168} </style>
 
 <div class="login" >
     Identifiant<br>
@@ -36,7 +35,7 @@
         usr = $("input#Login").val();
         pass = $("input#Password").val();
         head = {"login": usr , "password": pass}
-        console.log(head);
+        /* console.log(head);*/
         login=false;
 
         /* get the lists*/
@@ -69,7 +68,7 @@
 
         /* add a first empty list */
         $("div.result").append("<ul class='result'></ul>");
-        console.log(listdata);
+        /* console.log(listdata);*/
 
         /* add a list for each element of data */
         var indexList = 0;
@@ -126,16 +125,16 @@
 
         $("div.result").show();
 
-        /* Create an action on create list button */
+        /* Create an action on Addlist button */
         $("button[name=addList]").on("click", function () {
             var listName = $("input[name=listName]").val();
-            console.log(listName);
+            /* console.log(listName); */
             createNewList(listName);
         });
 
         /* Create an action on each delete List button */
         $("img.buttonDelList").on("click", function () {
-            console.log("ok for delete :" + $(this).attr('index'));
+            /* console.log("ok for delete :" + $(this).attr('index')); */
             deleteList($(this).attr('index'));
         });
 
@@ -143,7 +142,7 @@
         $("button.buttonAddItem").on("click", function () {
             var listIndex = Number($(this).attr('name').replace(/list_/gi, ""));
             var item = $("input[name='list_" + listIndex + "']").val();
-            console.log("ok to add " + item + " to: list_" + listIndex);
+            /* console.log("ok to add " + item + " to: list_" + listIndex);*/
             createnewItem(listIndex, item);
         });
 
@@ -151,7 +150,7 @@
         $("img.buttonDelItem").on("click", function () {
             var listIndex = Number($(this).attr('listname').replace(/list_/gi, ""));
             var itemIndex = $(this).attr('index');
-            console.log("ok to delete item:" + itemIndex + " of:list_" + listIndex);
+            /* console.log("ok to delete item:" + itemIndex + " of:list_" + listIndex);*/
             deleteItem(listIndex, itemIndex);
         });
 
@@ -159,55 +158,49 @@
         $("div.listtitle").on("click", function () {
             var indexList = Number($(this).closest("li").attr("id").replace(/list_/gi, ""));
             var listname = $(this).text();
-            console.log("ok to edit :" + $(this).text());
+            /* console.log("ok to edit :" + $(this).text()); */
             $(this).replaceWith(
                 "<div class='listtitle'>" +
-                "<input type='texte' name='listName' placeholder='" + listname + "'>" +
-                "<button id='rename'> rename</button>" +
-                "<button id='cancel'> cancel</button> " +
+                    "<input type='texte' name='listName' placeholder='" + listname + "'>" +
+                    "<button id='rename'> rename</button>" +
+                    "<button id='cancel'> cancel</button> " +
                 "</div>");
 
             /* Set action on cancel button*/
             $("div.listtitle button#cancel").on("click", function () {
             /* console.log("ok to cancel :" + listname);*/
-            /* $(this).parent().replaceWith(
-                "<div class='listtitle'>" +
-                listname +
-                "<img class='buttonDelList' index='" + indexList + "' src='cancelcross.png' alt='cancel cross'>" +
-                "</div>");*/
+
             displayLists(head);
             });
 
             /* set action on rename button*/
             $("div.listtitle button#rename").on("click", function () {
+                /* if input is edited val is not null else use placeholder */
                 listname =  ($("div.listtitle input").val()!="") ? $("div.listtitle input").val() : $("div.listtitle input").attr('placeholder');
-                console.log("ok to rename :" + listname + " index :" + indexList);
-                /* action to rename list */
+                /* console.log("ok to rename :" + listname + " index :" + indexList);*/
                 renameList(indexList,listname);
             });
 
         });
-
-
-        /* on cancel change button */
 
     }
 
 
     function createNewList(nom) {
         if (nom!==null) {
-            console.log(listdata);
+            /* Add a object in array */
             newlist = {name: nom, elements: []};
             listdata.todoListes.push(newlist);
-            console.log(listdata);
+            /* console.log(listdata);*/
 
+            /* store changes */
             $.ajax({
                 type: 'post',
                 url: "http://92.222.69.104:80/todo/listes",
                 data: JSON.stringify(listdata),
                 contentType: "application/json; charset=utf-8"
             }).done(function (listdata) {
-                console.log(listdata)
+                /* console.log(listdata)*/
                 });
             displayLists(head);
             };
@@ -216,12 +209,10 @@
 
     function deleteList(listIndex) {
         if (listIndex!==null) {
-            /*Call service 1 to get object list */
-            /* $.ajax({
-                url: "http://92.222.69.104:80/todo/listes",
-                headers: head
-            }).done( function (data) {*/
+            /* suppress list listIndex */
             listdata.todoListes.splice(listIndex,1);
+
+            /* store changes */
             $.ajax({
                 type: 'post',
                 url: "http://92.222.69.104:80/todo/listes",
@@ -236,14 +227,11 @@
 
     function renameList(listIndex,newName) {
         if (listIndex!==null) {
-            /*Call service 1 to get object list */
-            /* $.ajax({
-                url: "http://92.222.69.104:80/todo/listes",
-                headers: head
-            }).done( function (data) {*/
+            /* change name of list in array */
             listdata.todoListes[listIndex].name= newName;
-            console.log (listdata);
-            /* store change */
+            /* console.log (listdata);*/
+
+            /* store changes */
             $.ajax({
                 type: 'post',
                 url: "http://92.222.69.104:80/todo/listes",
@@ -254,29 +242,22 @@
                 });
 
             };
-
         }
-
 
 
     function createnewItem(listIndex,item) {
         if (listIndex!==null && item!==null) {
-            /*$.ajax({
-            url: "http://92.222.69.104:80/todo/listes",
-            headers: {"login": "MICHAUD", "password": "Eric"}
-            }).done(
-                function (data) {*/
-            console.log(listdata);
+            /* add a item in list */
             listdata.todoListes[listIndex].elements.push(item);
-            console.log(listdata);
+            /* console.log(listdata);*/
 
+            /* store changes */
             $.ajax({
                 type: 'post',
                 url: "http://92.222.69.104:80/todo/listes",
                 data: JSON.stringify(listdata),
                 contentType: "application/json; charset=utf-8"
                 }).done(function (listdata) {
-                    console.log(listdata);
                     displayLists(head);
                     });
             };
@@ -285,23 +266,17 @@
 
     function deleteItem(listIndex,itemIndex) {
         if (listIndex!==null && itemIndex!==null) {
-            /*Call service 1 to get object list */
-            /*$.ajax({
-                url: "http://92.222.69.104:80/todo/listes",
-                headers: {"login": "MICHAUD", "password": "Eric"}
-                }).done( function (data) {*/
-            console.log(listdata);
+            /* remove the item itemIndex from the list */
             listdata.todoListes[listIndex].elements.splice(itemIndex,1);
-            console.log(listdata);
+            /* console.log(listdata);*/
 
-
+            /* store changes */
             $.ajax({
                 type: 'post',
                 url: "http://92.222.69.104:80/todo/listes",
                 data: JSON.stringify(listdata),
                 contentType: "application/json; charset=utf-8"
                 }).done(function (listdata) {
-                    console.log(listdata);
                     displayLists(head);
                     });
             };
