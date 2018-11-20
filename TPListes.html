@@ -157,7 +157,7 @@
 
         /* Create an action on each listtitle */
         $("div.listtitle").on("click", function () {
-            var indexList = $(this).closest("li").attr("id");
+            var indexList = Number($(this).closest("li").attr("id").replace(/list_/gi, ""));
             var listname = $(this).text();
             console.log("ok to edit :" + $(this).text());
             $(this).replaceWith(
@@ -167,16 +167,24 @@
                 "<button id='cancel'> cancel</button> " +
                 "</div>");
 
-                $("div.listtitle button#cancel").on("click", function () {
-                console.log("ok to cancel :" + listname);
-                $(this).parent().replaceWith(
-                    "<div class='listtitle'>" +
-                    listname +
-                    "<img class='buttonDelList' index='" + indexList + "' src='cancelcross.png' alt='cancel cross'>" +
-                    "</div>");
+            /* Set action on cancel button*/
+            $("div.listtitle button#cancel").on("click", function () {
+            /* console.log("ok to cancel :" + listname);*/
+            /* $(this).parent().replaceWith(
+                "<div class='listtitle'>" +
+                listname +
+                "<img class='buttonDelList' index='" + indexList + "' src='cancelcross.png' alt='cancel cross'>" +
+                "</div>");*/
+            displayLists(head);
             });
 
-
+            /* set action on rename button*/
+            $("div.listtitle button#rename").on("click", function () {
+                listname =  ($("div.listtitle input").val()!="") ? $("div.listtitle input").val() : $("div.listtitle input").attr('placeholder');
+                console.log("ok to rename :" + listname + " index :" + indexList);
+                /* action to rename list */
+                renameList(indexList,listname);
+            });
 
         });
 
@@ -226,6 +234,28 @@
             };
         }
 
+    function renameList(listIndex,newName) {
+        if (listIndex!==null) {
+            /*Call service 1 to get object list */
+            /* $.ajax({
+                url: "http://92.222.69.104:80/todo/listes",
+                headers: head
+            }).done( function (data) {*/
+            listdata.todoListes[listIndex].name= newName;
+            console.log (listdata);
+            /* store change */
+            $.ajax({
+                type: 'post',
+                url: "http://92.222.69.104:80/todo/listes",
+                data: JSON.stringify(listdata),
+                contentType: "application/json; charset=utf-8"
+            }).done(function (listdata) {
+                displayLists(head);
+                });
+
+            };
+
+        }
 
 
 
